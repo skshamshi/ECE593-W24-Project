@@ -25,6 +25,8 @@ always_ff @(posedge rclk or negedge rrst_n)
 assign rbnext = !rempty ? rbin + rinc : rbin;
 assign rgnext = (rbnext >> 1) ^ rbnext;
 
+//GrayCodeCounter GCC(.clk(rclk), .reset(rrst_n), .inc(rinc), .empty(rempty), .ptr(rgnext));
+
 always_ff @(posedge rclk or negedge aempty_n)
 	if (!aempty_n) {rempty, rempty2} <= 2'b11;
 	else		   {rempty, repmty2} <= {rempty2, ~aempty_n};
