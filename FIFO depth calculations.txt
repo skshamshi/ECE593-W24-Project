@@ -1,0 +1,26 @@
+FIFO Operating Conditions:
+
+Producer clk1 frequency = 240 MHz 
+Consumer clk2 frequency = 400 MHz 
+With duty-cycle of 50%. 
+Max writes Burst size = 512. 
+Num. of idle cycle between successive writes = 0. 
+Num. of idle cycles between successive reads = 2.
+
+
+The no. of idle cycles between two successive writes is 1 clock cycle. It means that, after writing one data, Producer is waiting for 0 clock cycles, to initiate the next write. 
+So, it can be understood that for every clock cycle, one data is written. 
+
+The no. of idle cycles between two successive reads is 2 clock cycles. It means that, after reading one data, Consumer is waiting for 2 clock cycles, to initiate the next read. So, 
+it can be understood that for every 3 clock cycles, one data is read.
+ 
+Time required to write one data item = (1) x (1/(240*106)) = 4.17ns.  
+Time required to write all the data in the burst = 512 x 4.17ns = 2133.5ns.
+
+Time required to read one data item = (3) x (1/(400*106)) = 7.5ns.
+So, for every 12 ns, the consumer is going to read one data item in the burst. In a period of 1800ns, 300 data items can be written. 
+
+The no. of data items can be read in a period of 2133.5 ns = (2133.5ns/7.5ns) = 284.47 data items.
+The remaining no. of bytes to be stored in the FIFO = 512 - 284.47 = 227.53. 
+
+So, the FIFO which has to be in this scenario must be capable of storing 228 data items. 
