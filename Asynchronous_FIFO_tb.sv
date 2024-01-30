@@ -15,7 +15,7 @@ logic	[DSIZE-1:0] wdata_verify;
 
 AsynchronousFIFO DUT(wdata,winc,wfull,wclk,wrst_n,rdata,rinc,rempty,rclk,rrst_n);
 
-always #5 wclk = !wclk;
+always #4.17ns wclk = !wclk;
 always #10 rclk = !rclk;
 
 initial 
