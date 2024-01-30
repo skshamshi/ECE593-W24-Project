@@ -2,6 +2,8 @@ module tb;
 
 parameter DSIZE = 8;
 parameter ASIZE = 4;
+parameter WR_CLK_PERIOD = 4.17ns;
+parameter RD_CLK_PERIOD = 7.5ns;
 
 logic	[DSIZE-1 : 0]wdata;
 logic	winc, rinc;
@@ -15,8 +17,8 @@ logic	[DSIZE-1:0] wdata_verify;
 
 AsynchronousFIFO DUT(wdata,winc,wfull,wclk,wrst_n,rdata,rinc,rempty,rclk,rrst_n);
 
-always #(4.17ns/2) wclk = !wclk;
-always #(7.5ns/2) rclk = !rclk;
+always #(WR_CLK_PERIOD/2) wclk = !wclk;
+always #(RD_CLK_PERIOD/2) rclk = !rclk;
 
 initial 
 	begin
