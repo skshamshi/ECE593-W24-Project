@@ -2,7 +2,8 @@ module FIFOMemory(wdata,wclken,waddr,wclk,rdata,raddr);
 
 parameter DATASIZE = 8;
 parameter ADDRSIZE = 4;
-
+parameter DEPTH = 1<<ADDRSIZE;
+	
 input logic [DATASIZE-1 : 0]wdata;
 input logic wclken;
 input logic [ADDRSIZE-1 : 0]waddr, raddr;
