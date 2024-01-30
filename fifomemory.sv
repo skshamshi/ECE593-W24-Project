@@ -8,7 +8,7 @@ input logic [DATASIZE-1 : 0]wdata;
 input logic wclken;
 input logic [ADDRSIZE-1 : 0]waddr, raddr;
 input logic wclk;
-output logic [DATASIZE-1]rdata;
+	output logic [DATASIZE-1 : 0]rdata;
 
 logic [DATASIZE-1 : 0]MEM[0 : DEPTH-1];
 	
