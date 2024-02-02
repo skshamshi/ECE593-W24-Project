@@ -1,5 +1,5 @@
 February - 3, First Milestone.
-
+February - 10, Second Milestone.
 Things to be submitted : HLDS, Design idea, Verification Plan.
 Later on new miletone every saturday till finals week.
 
