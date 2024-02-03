@@ -1,85 +1,87 @@
-module tb;
+module tb;     
+parameter DWIDTH	= 8;
+parameter ADDRWIDTH = 9;
 
-parameter DSIZE = 8;
-parameter ASIZE = 4;
-parameter WR_CLK_PERIOD = 4.17ns;
-parameter RD_CLK_PERIOD = 7.5ns;
+logic wclk, w_enable, wrst_n;
+logic rclk, r_enable, rrst_n;
+logic [DWIDTH-1:0]wdata;
+logic [DWIDTH-1:0]rdata;
+logic full, empty;
+int temp;
 
-logic	[DSIZE-1 : 0]wdata;
-logic	winc, rinc;
-logic	wfull, rempty;
-logic	wrst_n, rrst_n;
-logic	[DSIZE-1 : 0]rdata;
-bit		wclk = 0, rclk = 0;
 
-logic	[DSIZE-1:0] write_queue[$];
-logic	[DSIZE-1:0] wdata_verify;
+logic [DWIDTH-1:0] wdata_q[$]; 
+logic [DWIDTH-1:0] written_data, expected_data; 
 
-AsynchronousFIFO DUT(wdata,winc,wfull,wclk,wrst_n,rdata,rinc,rempty,rclk,rrst_n);
+Asynchronous_FIFO FIFO(wdata, wclk, w_enable, wrst_n, rclk, r_enable, rrst_n, full, empty, rdata);
 
-always #(WR_CLK_PERIOD/2) wclk = !wclk;
-always #(RD_CLK_PERIOD/2) rclk = !rclk;
+//always #5 wclk = ~wclk;
+//always #10 rclk = ~rclk;
 
-initial 
-	begin
-	wrst_n = 0;
-	#2 wrst_n = 1;
-	#1 wrst_n = 0;
-	end
-	
 initial
 	begin
-	rrst_n = 0;
-	#2 rrst_n = 1;
-	#1 rrst_n = 0;
-	end
-	
-initial
-	begin
-		wdata = '0;
-		winc = 0;
-		repeat(2) @(posedge wclk);
-		wrst_n = 1;
-		
-		for (int i=0; i<2; i=i+1)
-			begin
-			for(int j=0; j<32; j=j+1)
-				begin
-				@(posedge wclk iff !wfull);
-				winc = (j%2 == 0)? 1:0;
-				
-				if (winc)
-					begin
-					wdata = $random;
-					write_queue.push_front(wdata);
-					end
-				end
-				#1us;
-			end
-	end
-	
-initial
-	begin
-	rinc = 0;
-	rrst_n = 0;
-	repeat(4) @(posedge rclk);
-	rrst_n=1;
-	
-	for(int i=0; i<2; i=i+1)
-		begin
-		for(int j=0; j<32; j=j+1)
-			begin
-			@(posedge rclk iff !rempty);
-			rinc = (j%2 == 0)? 1:0;
-			if(rinc)
-				begin
-				wdata_verify = write_queue.pop_back();
-				$display("Reading data: wdata = %h, rdata = %h",wdata_verify,rdata);
-				end
-			end
-			#1us;
+		wclk = 0;
+		forever begin
+			#5ns wclk = ~wclk;
 		end
-		$finish;
 	end
 	
+initial
+	begin
+		rclk = 0;
+		forever begin
+			#10ns rclk = ~rclk;
+		end
+	end
+
+initial
+	begin
+	//$display("[TB, wrst_n] Write reset initial block started");
+	wrst_n = 0;
+	//@(posedge wclk); wrst_n = 0;
+	@(posedge wclk); wrst_n = 1;
+	//$display("[TB, wrst_n] Write reset initial block ended");
+	end
+	
+initial
+	begin
+	//$display("[TB, rrst_n] Read reset initial block started");
+	rrst_n = 0;
+	//@(posedge rclk); rrst_n = 0;
+	@(posedge rclk); rrst_n = 1;
+	//$display("[TB, rrst_n] Read reset initial block ended");
+	end
+	
+always @(posedge wclk)
+	begin
+	if(w_enable)
+		begin
+		wdata <= temp;
+		
+		wdata_q.push_back(wdata);
+		end
+	else wdata = 'z;
+	end
+	
+assign w_enable = wrst_n ?  !full : 0; //active-low reset
+assign r_enable = rrst_n ?  !empty : 0;
+assign temp = w_enable ? temp+1 : temp;
+
+initial	
+	begin
+	repeat (2000) @(posedge wclk);
+	$finish;
+	end
+	
+always @(posedge rclk)
+	begin
+	if(r_enable)
+		begin
+		written_data = rdata;
+		expected_data = wdata_q.pop_front();
+		if(written_data !== expected_data)
+			$display(" Error: written_data=%d, rdata=%d",written_data, expected_data);
+		end
+	end
+
 endmodule
