@@ -1,8 +1,9 @@
 module tb;
 
 parameter DWIDTH = 9;
-bit		clk=0, rst_n;
+bit	clk=0, rst_n;
 logic	enable;
+logic [DWIDTH-1:0] count;
 
 Binary_counter BC(count, clk, rst_n, enable);
 
@@ -16,8 +17,10 @@ initial
 	
 initial
 	begin
-	repeat(20)
+		enable = 0;
+		@(posedge clk)
 		enable = 1;
+		repeat(20) @(posedge clk);
 	$finish;
 	end
 
