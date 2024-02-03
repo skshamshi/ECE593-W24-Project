@@ -1,4 +1,4 @@
-module AsynchronousFIFO(wdata,winc,wfull,wclk,wrst_n,rdata,rinc,rempty,rclk,rrst_n);
+module AsynchronousFIFO(wdata,winc,wfull,wclk,wrst_n,rdata,rinc,rempty,rclk,rrst_n,full,empty);
 
 parameter DSIZE = 8;
 parameter ASIZE = 4;
