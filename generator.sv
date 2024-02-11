@@ -18,7 +18,7 @@ $display("[Generator] Run started ta time = %0t" $time);
 pkt = new;
 pkt.kind = RESET;
 pkt.reset_cycles = 2;
-$display("[Generator] Sending %0s packet %0d to driver at time=%0t",pkt.kind.name(),pkt_count,$time);
+$display("[Generator] Sending %0s packet %0d to driver at time=%0t",pkt.kind,pkt_count,$time);
 mbx.put(pkt);
 
 //generate the normal stimulus
@@ -29,7 +29,7 @@ pkt.copy(ref_packet);
 pkt.kind = STIMULUS;
 mbx.put(pkt);
 pkt_count ++;
-$display("[Generator] Sent %0s packet %0d to driver at time=%0t",pkt.kind.name(),pkt_count,$time);
+$display("[Generator] Sent %0s packet %0d to driver at time=%0t",pkt.kind,pkt_count,$time);
 end
 $display("[Generator] Run ended at time=%0t",$time);
 endtask
