@@ -42,6 +42,7 @@ task drive_stimulus(packet pkt);
 endtask
 
 task write(packet pkt);
+	for(int BURST=0; BURST<30; BURST++);
 	@(vif.cb);
 	$display("[Driver] write operation started with waddr=%0d wdata=%0d at time=%0t",pkt.addr,pkt.wdata,$time);
 	vif.cb.w_enable		<= 1'b1;
