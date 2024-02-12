@@ -1,21 +1,19 @@
-module Read_Ptr(rclk, rrst_n, r_enable, wgptr_sync, rptr, empty);
+module Read_Ptr #(parameter ADDRWIDTH = 9, parameter DWIDTH = 8) (top_if.Read_ptr_inf rd_if, 
+				input	logic [ADDRWIDTH-1:0]wgptr_sync,
+				output	logic [ADDRWIDTH-1:0]rptr,
+				output	logic [ADDRWIDTH-1:0]rg_ptr
+				);
 
-parameter ADDRWIDTH = 9;
-input	logic rclk, rrst_n, r_enable;
-input	logic [ADDRWIDTH-1:0]wgptr_sync;
-output	logic [ADDRWIDTH-1:0]rptr;
-output	logic [ADDRWIDTH-1:0]rg_ptr;
-output	logic empty;
-		logic [ADDRWIDTH-1:0]rb_ptr;
-		logic [ADDRWIDTH-1:0]wbptr_sync
+	logic [ADDRWIDTH-1:0]rb_ptr;
+	logic [ADDRWIDTH-1:0]wbptr_sync;
 
-assign empty = wbptr_sync == rb_ptr;
+assign rd_if.empty = rd_if.rrst_n ? (wbptr_sync == rb_ptr) : 0;
 
-Binary_counter(.count(rb_ptr), .clk(rclk), .rst_n(rrst_n), .enable(r_enable));
+Binary_counter BCount(.count(rb_ptr), .clk(rd_if.rclk), .rst_n(rd_if.rrst_n), .enable(rd_if.r_enable));
 
-Binary_Gray(.Binary_in(rb_ptr), .Gray_out(rg_ptr));
+Binary_Gray BtoG(.Binary_in(rb_ptr), .Gray_out(rg_ptr));
 
-Gray_Binary(.Gray_in(wgptr_sync), .Binary_out(wbptr_sync));
+Gray_Binary GtoB(.Gray_in(wgptr_sync), .Binary_out(wbptr_sync));
 
 assign rptr = rb_ptr;
 
