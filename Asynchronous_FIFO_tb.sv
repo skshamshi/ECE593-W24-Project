@@ -4,18 +4,15 @@ parameter ADDRWIDTH = 9;
 parameter BURST_SIZE = 512;
 parameter NUM_BURST = 10;
 
-logic wclk, w_enable, wrst_n;
-logic rclk, r_enable, rrst_n;
-logic [DWIDTH-1:0]wdata;
-logic [DWIDTH-1:0]rdata;
-logic full, empty;
+logic wclk, wrst_n;
+logic rclk, rrst_n;
 logic burst_done;
 
 logic [DWIDTH-1:0] wdata_q[*] [BURST_SIZE] ; 
 logic [DWIDTH-1:0] rdata_q[*] [BURST_SIZE] ; 
 
-
-Asynchronous_FIFO FIFO(wdata, wclk, w_enable, wrst_n, rclk, r_enable, rrst_n, full, empty, rdata);
+top_if tb_if(wclk, rclk, wrst_n, rrst_n);
+Asynchronous_FIFO FIFO(tb_if);
 
 initial
 	begin
@@ -40,12 +37,12 @@ task drive_stimulus();
 endtask
 
 task drive(logic [DWIDTH-1:0] driving_data);
-	while(w_enable==0)
+	while(tb_if.w_enable==0)
 		begin
-			wdata <= 'z;
+			tb_if.wdata <= 'z;
 			@(posedge wclk);
 		end
-	wdata <= driving_data;
+	tb_if.wdata <= driving_data;
 	@(posedge wclk);				
 endtask
 
@@ -55,9 +52,9 @@ task read_data();
 	repeat (4) @(negedge rclk);
 	forever begin
 		@(posedge rclk);
-			if(r_enable) begin
+			if(tb_if.r_enable) begin
 			@(negedge rclk);
-				rdata_q[burst_id][packet_id] = rdata;
+				rdata_q[burst_id][packet_id] = tb_if.rdata;
 				burst_done = (packet_id == BURST_SIZE-1);
 				
 				if(burst_done) begin
@@ -114,8 +111,7 @@ initial
 	@(posedge rclk); rrst_n = 1;
 	end
 		
-assign w_enable = wrst_n ?  !full : 0; //active-low reset
-assign r_enable = rrst_n ?  !empty : 0;
-//assign r_enable = rrst_n ?  (!burst_done && !empty) : 0;
+assign tb_if.w_enable = tb_if.wrst_n ?  !tb_if.full : 0; //active-low reset
+assign tb_if.r_enable = tb_if.rrst_n ?  !tb_if.empty : 0;
 
 endmodule
