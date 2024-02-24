@@ -1,31 +1,32 @@
-typedef enum {IDLE,STIMULUS,RESET}Pkt_type;
+
+import fifo_package::*;
 
 class packet;
  parameter DWIDTH	= 8;
- rand	bit [DWIDTH-1:0]data;
- rand	bit w_enable;
+ parameter ADDRWIDTH = 9;
+ rand	bit [DWIDTH-1:0]data; 
  Pkt_type kind;
- bit reset_cycles;
+int reset_cycles;
+ bit wrst_n, rst_n;
  
  function void print();
-	$display("[packet]wdata = %0h at time = %0t", wdata, $time);
+	$display("[packet]wdata = %0h at time = %0t", data, $time);
  endfunction
  
  function void copy(packet tmp);
- if(tmp == null) begin
-	$display("[packet] Error Null object passed to copy method ");
- end
- this.wdata = tmp.wdata;
- this.w_enable = tmp.w_enable;
+	if(tmp == null) begin
+		$display("[packet] Error: Null object passed to copy method ");
+	end
+	this.data = tmp.data;
  endfunction
  
  function bit compare (packet tmp);
- bit result;
+	bit result;
  
- if(tmp == null) begin
-	$display("[packet] Error Null object passed to compare method ");	
- end
- result = (this.wdata == tmp.wdata);
- return result;
+	if(tmp == null) begin
+		$display("[packet] Error Null object passed to compare method ");	
+	end
+	result = (this.data == tmp.data);
+	return result;
  endfunction
 endclass
